@@ -1,161 +1,178 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Button } from '@/components/ui/button.jsx'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
-import { Badge } from '@/components/ui/badge.jsx'
-import { Calendar, Filter, MapPin, Search, Loader2 } from 'lucide-react'
-import './App.css'
-import { MultiSelect } from './components/multi-select.jsx'
+import { useState, useEffect, useMemo } from "react";
+import { Button } from "@/components/ui/button.jsx";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card.jsx";
+import { Badge } from "@/components/ui/badge.jsx";
+import { Calendar, Filter, MapPin, Search, Loader2 } from "lucide-react";
+import "./App.css";
+import { MultiSelect } from "./components/multi-select.jsx";
 
 // Importar dados dos feriados
-import nationalHolidays from './assets/national_holidays_2025.json'
-import stateHolidays from './assets/state_holidays_2025.json'
-import municipalHolidays from './assets/municipal_holidays_2025.json'
+import nationalHolidays from "./assets/national_holidays_2025.json";
+import stateHolidays from "./assets/state_holidays_2025.json";
+import municipalHolidays from "./assets/municipal_holidays_2025.json";
 
 // Estados brasileiros
 const ESTADOS = [
-  { value: 'AC', label: 'Acre' },
-  { value: 'AL', label: 'Alagoas' },
-  { value: 'AP', label: 'Amapá' },
-  { value: 'AM', label: 'Amazonas' },
-  { value: 'BA', label: 'Bahia' },
-  { value: 'CE', label: 'Ceará' },
-  { value: 'DF', label: 'Distrito Federal' },
-  { value: 'ES', label: 'Espírito Santo' },
-  { value: 'GO', label: 'Goiás' },
-  { value: 'MA', label: 'Maranhão' },
-  { value: 'MT', label: 'Mato Grosso' },
-  { value: 'MS', label: 'Mato Grosso do Sul' },
-  { value: 'MG', label: 'Minas Gerais' },
-  { value: 'PA', label: 'Pará' },
-  { value: 'PB', label: 'Paraíba' },
-  { value: 'PR', label: 'Paraná' },
-  { value: 'PE', label: 'Pernambuco' },
-  { value: 'PI', label: 'Piauí' },
-  { value: 'RJ', label: 'Rio de Janeiro' },
-  { value: 'RN', label: 'Rio Grande do Norte' },
-  { value: 'RS', label: 'Rio Grande do Sul' },
-  { value: 'RO', label: 'Rondônia' },
-  { value: 'RR', label: 'Roraima' },
-  { value: 'SC', label: 'Santa Catarina' },
-  { value: 'SP', label: 'São Paulo' },
-  { value: 'SE', label: 'Sergipe' },
-  { value: 'TO', label: 'Tocantins' }
-]
+  { value: "AC", label: "Acre" },
+  { value: "AL", label: "Alagoas" },
+  { value: "AP", label: "Amapá" },
+  { value: "AM", label: "Amazonas" },
+  { value: "BA", label: "Bahia" },
+  { value: "CE", label: "Ceará" },
+  { value: "DF", label: "Distrito Federal" },
+  { value: "ES", label: "Espírito Santo" },
+  { value: "GO", label: "Goiás" },
+  { value: "MA", label: "Maranhão" },
+  { value: "MT", label: "Mato Grosso" },
+  { value: "MS", label: "Mato Grosso do Sul" },
+  { value: "MG", label: "Minas Gerais" },
+  { value: "PA", label: "Pará" },
+  { value: "PB", label: "Paraíba" },
+  { value: "PR", label: "Paraná" },
+  { value: "PE", label: "Pernambuco" },
+  { value: "PI", label: "Piauí" },
+  { value: "RJ", label: "Rio de Janeiro" },
+  { value: "RN", label: "Rio Grande do Norte" },
+  { value: "RS", label: "Rio Grande do Sul" },
+  { value: "RO", label: "Rondônia" },
+  { value: "RR", label: "Roraima" },
+  { value: "SC", label: "Santa Catarina" },
+  { value: "SP", label: "São Paulo" },
+  { value: "SE", label: "Sergipe" },
+  { value: "TO", label: "Tocantins" },
+];
 
 // Meses do ano
 const MESES = [
-  { value: '01', label: 'Janeiro' },
-  { value: '02', label: 'Fevereiro' },
-  { value: '03', label: 'Março' },
-  { value: '04', label: 'Abril' },
-  { value: '05', label: 'Maio' },
-  { value: '06', label: 'Junho' },
-  { value: '07', label: 'Julho' },
-  { value: '08', label: 'Agosto' },
-  { value: '09', label: 'Setembro' },
-  { value: '10', label: 'Outubro' },
-  { value: '11', label: 'Novembro' },
-  { value: '12', label: 'Dezembro' }
-]
+  { value: "01", label: "Janeiro" },
+  { value: "02", label: "Fevereiro" },
+  { value: "03", label: "Março" },
+  { value: "04", label: "Abril" },
+  { value: "05", label: "Maio" },
+  { value: "06", label: "Junho" },
+  { value: "07", label: "Julho" },
+  { value: "08", label: "Agosto" },
+  { value: "09", label: "Setembro" },
+  { value: "10", label: "Outubro" },
+  { value: "11", label: "Novembro" },
+  { value: "12", label: "Dezembro" },
+];
 
 // Tipos de feriado
 const TIPOS_FERIADO = [
-  { value: 'NACIONAL', label: 'Nacional' },
-  { value: 'ESTADUAL', label: 'Estadual' },
-  { value: 'MUNICIPAL', label: 'Municipal' }
-]
+  { value: "NACIONAL", label: "Nacional" },
+  { value: "ESTADUAL", label: "Estadual" },
+  { value: "MUNICIPAL", label: "Municipal" },
+];
 
 function App() {
-  const [filtroMeses, setFiltroMeses] = useState([])
-  const [filtroTipos, setFiltroTipos] = useState([])
-  const [filtroEstados, setFiltroEstados] = useState([])
-  const [feriadosExibidos, setFeriadosExibidos] = useState([])
-  const [buscaRealizada, setBuscaRealizada] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [filtroMeses, setFiltroMeses] = useState([]);
+  const [filtroTipos, setFiltroTipos] = useState([]);
+  const [filtroEstados, setFiltroEstados] = useState([]);
+  const [feriadosExibidos, setFeriadosExibidos] = useState([]);
+  const [buscaRealizada, setBuscaRealizada] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Combinar todos os feriados
   const todosOsFeriados = useMemo(() => {
-    return [...nationalHolidays, ...stateHolidays, ...municipalHolidays]
-  }, [])
+    return [...nationalHolidays, ...stateHolidays, ...municipalHolidays];
+  }, []);
 
   // Função para buscar feriados baseado nos filtros selecionados
   const buscarFeriados = () => {
-    setIsLoading(true)
-    setBuscaRealizada(false)
-    
+    setIsLoading(true);
+    setBuscaRealizada(false);
+
     // Simular carregamento para dar feedback visual ao usuário
     setTimeout(() => {
-      let feriados = [...todosOsFeriados]
+      let feriados = [...todosOsFeriados];
 
       // Filtro por mês
       if (filtroMeses.length > 0) {
-        feriados = feriados.filter(feriado => {
-          const [dia, mes] = feriado.data.split('/')
-          return filtroMeses.includes(mes)
-        })
+        feriados = feriados.filter((feriado) => {
+          const [dia, mes] = feriado.data.split("/");
+          return filtroMeses.includes(mes);
+        });
       }
 
       // Filtro por tipo
       if (filtroTipos.length > 0) {
-        feriados = feriados.filter(feriado => filtroTipos.includes(feriado.tipo))
+        feriados = feriados.filter((feriado) =>
+          filtroTipos.includes(feriado.tipo)
+        );
       }
 
       // Filtro por estado
       if (filtroEstados.length > 0) {
-        feriados = feriados.filter(feriado => {
-          if (feriado.tipo === 'NACIONAL') return true
-          return filtroEstados.includes(feriado.uf)
-        })
+        feriados = feriados.filter((feriado) => {
+          if (feriado.tipo === "NACIONAL") return true;
+          return filtroEstados.includes(feriado.uf);
+        });
       }
 
       // Ordenar por data
       const feriadosOrdenados = feriados.sort((a, b) => {
-        const [diaA, mesA] = a.data.split('/')
-        const [diaB, mesB] = b.data.split('/')
-        const dataA = new Date(2025, parseInt(mesA) - 1, parseInt(diaA))
-        const dataB = new Date(2025, parseInt(mesB) - 1, parseInt(diaB))
-        return dataA - dataB
-      })
+        const [diaA, mesA] = a.data.split("/");
+        const [diaB, mesB] = b.data.split("/");
+        const dataA = new Date(2025, parseInt(mesA) - 1, parseInt(diaA));
+        const dataB = new Date(2025, parseInt(mesB) - 1, parseInt(diaB));
+        return dataA - dataB;
+      });
 
-      setFeriadosExibidos(feriadosOrdenados)
-      setBuscaRealizada(true)
-      setIsLoading(false)
-    }, 800) // 800ms de delay para mostrar o loading
-  }
+      setFeriadosExibidos(feriadosOrdenados);
+      setBuscaRealizada(true);
+      setIsLoading(false);
+    }, 800); // 800ms de delay para mostrar o loading
+  };
 
   // Função para limpar filtros
   const limparFiltros = () => {
-    setFiltroMeses([])
-    setFiltroTipos([])
-    setFiltroEstados([])
-    setFeriadosExibidos([])
-    setBuscaRealizada(false)
-  }
-
-  // Adicionar uma chave (key) para forçar a re-renderização do MultiSelect
-  // quando os filtros são limpos, garantindo que o componente reflita o estado mais recente.
-  const multiSelectKey = JSON.stringify({ filtroMeses, filtroTipos, filtroEstados });
+    setFiltroMeses([]);
+    setFiltroTipos([]);
+    setFiltroEstados([]);
+    setFeriadosExibidos([]);
+    setBuscaRealizada(false);
+  };
 
   // Função para formatar data
   const formatarData = (data) => {
-    const [dia, mes] = data.split('/')
-    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-    return `${dia} de ${meses[parseInt(mes) - 1]}`
-  }
+    const [dia, mes] = data.split("/");
+    const meses = [
+      "Jan",
+      "Fev",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dez",
+    ];
+    return `${dia} de ${meses[parseInt(mes) - 1]}`;
+  };
 
   // Função para obter cor do badge baseado no tipo
   const getCorTipo = (tipo) => {
     switch (tipo) {
-      case 'NACIONAL':
-        return 'bg-green-100 text-green-800 hover:bg-green-200'
-      case 'ESTADUAL':
-        return 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-      case 'MUNICIPAL':
-        return 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+      case "NACIONAL":
+        return "bg-green-100 text-green-800 hover:bg-green-200";
+      case "ESTADUAL":
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+      case "MUNICIPAL":
+        return "bg-purple-100 text-purple-800 hover:bg-purple-200";
       default:
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -167,7 +184,8 @@ function App() {
             Feriados Brasil 2025
           </h1>
           <p className="text-gray-600 text-lg">
-            Consulte todos os feriados nacionais, estaduais e municipais do Brasil
+            Consulte todos os feriados nacionais, estaduais e municipais do
+            Brasil
           </p>
         </div>
 
@@ -179,7 +197,8 @@ function App() {
               Filtros
             </CardTitle>
             <CardDescription>
-              Selecione os filtros desejados e clique em "Buscar Feriados" para visualizar os resultados
+              Selecione os filtros desejados e clique em "Buscar Feriados" para
+              visualizar os resultados
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -188,7 +207,6 @@ function App() {
               <div>
                 <label className="text-sm font-medium mb-3 block">Mês</label>
                 <MultiSelect
-                  key={multiSelectKey}
                   options={MESES}
                   onValueChange={setFiltroMeses}
                   defaultValue={filtroMeses}
@@ -200,9 +218,10 @@ function App() {
 
               {/* Filtro por Tipo */}
               <div>
-                <label className="text-sm font-medium mb-3 block">Tipo de Feriado</label>
+                <label className="text-sm font-medium mb-3 block">
+                  Tipo de Feriado
+                </label>
                 <MultiSelect
-                  key={multiSelectKey}
                   options={TIPOS_FERIADO}
                   onValueChange={setFiltroTipos}
                   defaultValue={filtroTipos}
@@ -214,9 +233,10 @@ function App() {
 
               {/* Filtro por Estado */}
               <div>
-                <label className="text-sm font-medium mb-3 block">Estado (UF)</label>
+                <label className="text-sm font-medium mb-3 block">
+                  Estado (UF)
+                </label>
                 <MultiSelect
-                  key={multiSelectKey}
                   options={ESTADOS}
                   onValueChange={setFiltroEstados}
                   defaultValue={filtroEstados}
@@ -228,7 +248,7 @@ function App() {
 
               {/* Botões de Ação */}
               <div className="flex gap-4 pt-4">
-                <Button 
+                <Button
                   onClick={buscarFeriados}
                   disabled={isLoading}
                   className="flex items-center gap-2"
@@ -238,14 +258,14 @@ function App() {
                   ) : (
                     <Search className="h-4 w-4" />
                   )}
-                  {isLoading ? 'Buscando...' : 'Buscar Feriados'}
+                  {isLoading ? "Buscando..." : "Buscar Feriados"}
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={limparFiltros}
                   disabled={isLoading}
                 >
-                  Limpar Filtros
+                  Limpar Busca
                 </Button>
               </div>
             </div>
@@ -261,7 +281,8 @@ function App() {
                 Carregando feriados...
               </h3>
               <p className="text-gray-500">
-                Aguarde enquanto buscamos os feriados com base nos filtros selecionados
+                Aguarde enquanto buscamos os feriados com base nos filtros
+                selecionados
               </p>
             </CardContent>
           </Card>
@@ -271,7 +292,9 @@ function App() {
         {buscaRealizada && !isLoading && (
           <div className="mb-4">
             <p className="text-gray-600">
-              Encontrados <span className="font-semibold">{feriadosExibidos.length}</span> feriados
+              Encontrados{" "}
+              <span className="font-semibold">{feriadosExibidos.length}</span>{" "}
+              feriados
             </p>
           </div>
         )}
@@ -351,9 +374,7 @@ function App() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
-
-
+export default App;
