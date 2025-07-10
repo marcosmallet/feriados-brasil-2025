@@ -20,7 +20,7 @@ Uma aplicação para consulta de feriados nacionais, estaduais e municipais do B
 3. Importe o projeto no Vercel
 4. O deploy será automático!
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/seu-usuario/feriados-brasil-2025)
+🔗 Aplicação publicada: [https://feriados-brasil-2025.vercel.app](https://feriados-brasil-2025.vercel.app)
 
 ### Netlify
 
@@ -35,14 +35,14 @@ Uma aplicação para consulta de feriados nacionais, estaduais e municipais do B
 
 ### Pré-requisitos
 
-- Node.js 18+ 
+- Node.js 18+
 - pnpm (recomendado) ou npm
 
 ### Instalação
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/feriados-brasil-2025.git
+git clone https://github.com/marcosmallet/feriados-brasil-2025.git
 cd feriados-brasil-2025
 
 # Instale as dependências
@@ -89,24 +89,29 @@ src/
 
 ## 📊 Dados dos Feriados
 
-A aplicação utiliza dados oficiais de feriados brasileiros para 2025, incluindo:
+A aplicação utiliza dados de feriados brasileiros para 2025, incluindo:
 
 - **Feriados Nacionais**: Datas comemorativas válidas em todo o território nacional
-- **Feriados Estaduais**: Feriados específicos de cada estado brasileiro  
+- **Feriados Estaduais**: Feriados específicos de cada estado brasileiro
 - **Feriados Municipais**: Feriados de principais municípios do país
 
 Os dados são carregados a partir de arquivos JSON localizados na pasta `src/assets/`.
 
+### 📚 Fonte dos Dados
+
+Os dados utilizados nesta aplicação foram extraídos e adaptados a partir do repositório [feriados-brasil](https://github.com/joaopbini/feriados-brasil), mantido por [joaopbini](https://github.com/joaopbini). Agradecimentos pela coleta e disponibilização pública dessas informações.
+
 ## 🎯 Como Usar
 
 1. **Selecionar Filtros**: Use os campos de seleção para escolher:
+
    - Meses desejados
    - Tipos de feriado (nacional, estadual, municipal)
    - Estados específicos
 
 2. **Buscar Feriados**: Clique no botão "Buscar Feriados" para visualizar os resultados
 
-3. **Limpar Filtros**: Use o botão "Limpar Filtros" para resetar todas as seleções
+3. **Limpar Busca**: Use o botão "Limpar Busca" para limpar os resultados
 
 4. **Visualizar Resultados**: Os feriados encontrados são exibidos em cards com:
    - Nome do feriado
@@ -138,4 +143,3 @@ Para dúvidas ou problemas:
 ---
 
 Desenvolvido com ❤️ para facilitar a consulta de feriados brasileiros.
-

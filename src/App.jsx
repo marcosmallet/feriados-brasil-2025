@@ -369,7 +369,15 @@ function App() {
         {/* Footer */}
         <div className="text-center mt-12 py-8 border-t border-gray-200">
           <p className="text-gray-500 text-sm">
-            Dados dos feriados obtidos de fontes oficiais • 2025
+            © 2025 Feriados Brasil — Desenvolvido por&nbsp;
+            <a
+              href="https://github.com/marcosmallet/feriados-brasil-2025"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-600 hover:underline"
+            >
+              marcosmallet
+            </a>
           </p>
         </div>
       </div>
