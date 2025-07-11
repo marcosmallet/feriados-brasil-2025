@@ -64,6 +64,17 @@ const MESES = [
   { value: "12", label: "Dezembro" },
 ];
 
+// Dias da semana
+const DIAS_DA_SEMANA = new Map([
+  [0, "Domingo"],
+  [1, "Segunda-feira"],
+  [2, "Terça-feira"],
+  [3, "Quarta-feira"],
+  [4, "Quinta-feira"],
+  [5, "Sexta-feira"],
+  [6, "Sábado"],
+]) 
+
 // Tipos de feriado
 const TIPOS_FERIADO = [
   { value: "NACIONAL", label: "Nacional" },
@@ -143,6 +154,7 @@ function App() {
   // Função para formatar data
   const formatarData = (data) => {
     const [dia, mes] = data.split("/");
+    const diaDaSemana = DIAS_DA_SEMANA.get(new Date(data).getDay());
     const meses = [
       "Jan",
       "Fev",
@@ -157,7 +169,7 @@ function App() {
       "Nov",
       "Dez",
     ];
-    return `${dia} de ${meses[parseInt(mes) - 1]}`;
+    return `${dia} de ${meses[parseInt(mes) - 1]} (${diaDaSemana})`;
   };
 
   // Função para obter cor do badge baseado no tipo
@@ -374,7 +386,7 @@ function App() {
               href="https://github.com/marcosmallet/feriados-brasil-2025"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-blue-600 hover:underline"
+              className="text-blue-600 hover:underline"
             >
               marcosmallet
             </a>
