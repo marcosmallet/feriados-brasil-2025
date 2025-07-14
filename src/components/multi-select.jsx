@@ -13,11 +13,7 @@ import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Checkbox } from "./ui/checkbox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -65,14 +61,11 @@ export const MultiSelect = React.forwardRef(
     },
     ref
   ) => {
-    const [selectedValues, setSelectedValues] =
-      React.useState(defaultValue);
+    const [selectedValues, setSelectedValues] = React.useState(defaultValue);
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [isAnimating, setIsAnimating] = React.useState(false);
 
-    const handleInputKeyDown = (
-      event
-    ) => {
+    const handleInputKeyDown = (event) => {
       if (event.key === "Enter") {
         setIsPopoverOpen(true);
       } else if (event.key === "Backspace" && !event.currentTarget.value) {
@@ -151,13 +144,23 @@ export const MultiSelect = React.forwardRef(
                           <IconComponent className="h-4 w-4 mr-2" />
                         )}
                         {option?.label}
-                        <XCircle
-                          className="ml-2 h-4 w-4 cursor-pointer"
-                          onClick={(event) => {
-                            event.stopPropagation();
+                        <span
+                          className="ml-2 flex items-center"
+                          tabIndex={-1}
+                          role="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
                             toggleOption(value);
                           }}
-                        />
+                          onMouseDown={(e) => {
+                            // Evita que o Popover feche ao clicar no X
+                            e.stopPropagation();
+                            e.preventDefault();
+                          }}
+                        >
+                          <XCircle className="h-4 w-4 cursor-pointer" />
+                        </span>
                       </Badge>
                     );
                   })}
@@ -250,7 +253,3 @@ export const MultiSelect = React.forwardRef(
 );
 
 MultiSelect.displayName = "MultiSelect";
-
-
-
-
