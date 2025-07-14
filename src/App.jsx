@@ -72,9 +72,31 @@ const TIPOS_FERIADO = [
 ];
 
 function App() {
-  const [filtroMeses, setFiltroMeses] = useState([]);
-  const [filtroTipos, setFiltroTipos] = useState([]);
-  const [filtroEstados, setFiltroEstados] = useState([]);
+  // Carregar filtros do localStorage, se existirem
+  const [filtroMeses, setFiltroMeses] = useState(() => {
+    const saved = localStorage.getItem("filtroMeses");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [filtroTipos, setFiltroTipos] = useState(() => {
+    const saved = localStorage.getItem("filtroTipos");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [filtroEstados, setFiltroEstados] = useState(() => {
+    const saved = localStorage.getItem("filtroEstados");
+    return saved ? JSON.parse(saved) : [];
+  });
+  // Salvar filtros no localStorage sempre que mudarem
+  useEffect(() => {
+    localStorage.setItem("filtroMeses", JSON.stringify(filtroMeses));
+  }, [filtroMeses]);
+
+  useEffect(() => {
+    localStorage.setItem("filtroTipos", JSON.stringify(filtroTipos));
+  }, [filtroTipos]);
+
+  useEffect(() => {
+    localStorage.setItem("filtroEstados", JSON.stringify(filtroEstados));
+  }, [filtroEstados]);
   const [feriadosExibidos, setFeriadosExibidos] = useState([]);
   const [buscaRealizada, setBuscaRealizada] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -138,6 +160,10 @@ function App() {
     setFiltroEstados([]);
     setFeriadosExibidos([]);
     setBuscaRealizada(false);
+    // Limpar localStorage dos filtros
+    localStorage.removeItem("filtroMeses");
+    localStorage.removeItem("filtroTipos");
+    localStorage.removeItem("filtroEstados");
   };
 
   // Função para formatar data
