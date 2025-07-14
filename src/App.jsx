@@ -160,6 +160,23 @@ function App() {
     return `${dia} de ${meses[parseInt(mes) - 1]}`;
   };
 
+  // Função para formatar data com dia da semana
+  const formatarDataComDiaSemana = (data) => {
+    const [dia, mes] = data.split("/");
+    const dataObj = new Date(2025, parseInt(mes) - 1, parseInt(dia));
+    const diasSemana = [
+      "Domingo",
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado",
+    ];
+    const diaSemana = diasSemana[dataObj.getDay()];
+    return `${formatarData(data)} (${diaSemana})`;
+  };
+
   // Função para obter cor do badge baseado no tipo
   const getCorTipo = (tipo) => {
     switch (tipo) {
@@ -309,7 +326,7 @@ function App() {
                     <div>
                       <CardTitle className="text-lg">{feriado.nome}</CardTitle>
                       <CardDescription className="text-sm text-gray-500">
-                        {formatarData(feriado.data)}
+                        {formatarDataComDiaSemana(feriado.data)}
                       </CardDescription>
                     </div>
                     <Badge className={getCorTipo(feriado.tipo)}>
