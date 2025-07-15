@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://feriadosbrasil2025.com.br/sitemap.xml
