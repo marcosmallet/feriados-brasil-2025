@@ -437,7 +437,7 @@ function App() {
                   <Button
                     onClick={buscarFeriados}
                     disabled={isLoading}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 cursor-pointer"
                   >
                     {isLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -450,6 +450,7 @@ function App() {
                     variant="outline"
                     onClick={limparFiltros}
                     disabled={isLoading}
+                    className="cursor-pointer"
                   >
                     Limpar Busca
                   </Button>
