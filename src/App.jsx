@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge.jsx";
 import { Calendar, Filter, MapPin, Search, Loader2 } from "lucide-react";
 import "./App.css";
 import { MultiSelect } from "./components/multi-select.jsx";
+import Select from "react-select";
 
 // Importar dados dos feriados
 import nationalHolidays from "./assets/national_holidays_2025.json";
@@ -110,24 +111,32 @@ function App() {
   const [buscaRealizada, setBuscaRealizada] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Gerar lista de cidades de acordo com estados selecionados
-  const municipiosDisponiveis = useMemo(() => {
-    if (filtroEstados.length === 0) return [];
-    // Filtrar feriados municipais pelas UFs selecionadas
-    const municipiosMap = new Map();
-    municipalHolidays.forEach((feriado) => {
-      if (filtroEstados.includes(feriado.uf) && feriado.municipio) {
-        // Chave única: UF + município
-        municipiosMap.set(
-          `${feriado.uf} - ${feriado.municipio}`,
-          feriado.municipio
-        );
-      }
+  // Estado de loading para municípios
+  const [loadingMunicipios, setLoadingMunicipios] = useState(false);
+  const [municipiosDisponiveis, setMunicipiosDisponiveis] = useState([]);
+
+  useEffect(() => {
+    if (filtroEstados.length === 0) {
+      setMunicipiosDisponiveis([]);
+      return;
+    }
+    setLoadingMunicipios(true);
+    Promise.resolve().then(() => {
+      setTimeout(() => {
+        const municipiosSet = new Set();
+        municipalHolidays.forEach((feriado) => {
+          if (filtroEstados.includes(feriado.uf) && feriado.municipio) {
+            const key = `${feriado.uf} - ${feriado.municipio}`;
+            municipiosSet.add(key);
+          }
+        });
+        const lista = Array.from(municipiosSet)
+          .sort()
+          .map((key) => ({ value: key, label: key }));
+        setMunicipiosDisponiveis(lista);
+        setLoadingMunicipios(false);
+      }, 300);
     });
-    // Ordenar municípios por label
-    return Array.from(municipiosMap.keys())
-      .sort()
-      .map((label) => ({ value: municipiosMap.get(label), label }));
   }, [filtroEstados]);
 
   // Combinar todos os feriados
@@ -171,7 +180,8 @@ function App() {
       if (filtroMunicipios.length > 0) {
         feriados = feriados.filter((feriado) => {
           if (feriado.tipo !== "MUNICIPAL") return true;
-          return filtroMunicipios.includes(feriado.municipio);
+          const municipioKey = `${feriado.uf} - ${feriado.municipio}`;
+          return filtroMunicipios.includes(municipioKey);
         });
       }
 
@@ -303,13 +313,26 @@ function App() {
                 {/* Filtro por Mês */}
                 <div>
                   <label className="text-sm font-medium mb-3 block">Mês</label>
-                  <MultiSelect
+                  <Select
+                    isMulti
                     options={MESES}
-                    onValueChange={setFiltroMeses}
-                    defaultValue={filtroMeses}
-                    placeholder="Selecione os meses"
-                    animation={1}
-                    maxCount={3}
+                    value={MESES.filter((opt) =>
+                      filtroMeses.includes(opt.value)
+                    )}
+                    onChange={(selected) =>
+                      setFiltroMeses(
+                        selected ? selected.map((opt) => opt.value) : []
+                      )
+                    }
+                    placeholder={
+                      MESES.length > 0
+                        ? "Selecione os meses"
+                        : "Nenhum mês disponível"
+                    }
+                    isClearable
+                    isSearchable
+                    closeMenuOnSelect={false}
+                    noOptionsMessage={() => "Nenhum mês encontrado"}
                   />
                 </div>
 
@@ -318,13 +341,26 @@ function App() {
                   <label className="text-sm font-medium mb-3 block">
                     Tipo de Feriado
                   </label>
-                  <MultiSelect
+                  <Select
+                    isMulti
                     options={TIPOS_FERIADO}
-                    onValueChange={setFiltroTipos}
-                    defaultValue={filtroTipos}
-                    placeholder="Selecione os tipos"
-                    animation={1}
-                    maxCount={3}
+                    value={TIPOS_FERIADO.filter((opt) =>
+                      filtroTipos.includes(opt.value)
+                    )}
+                    onChange={(selected) =>
+                      setFiltroTipos(
+                        selected ? selected.map((opt) => opt.value) : []
+                      )
+                    }
+                    placeholder={
+                      TIPOS_FERIADO.length > 0
+                        ? "Selecione os tipos"
+                        : "Nenhum tipo disponível"
+                    }
+                    isClearable
+                    isSearchable
+                    closeMenuOnSelect={false}
+                    noOptionsMessage={() => "Nenhum tipo encontrado"}
                   />
                 </div>
 
@@ -333,34 +369,66 @@ function App() {
                   <label className="text-sm font-medium mb-3 block">
                     Estado (UF)
                   </label>
-                  <MultiSelect
+                  <Select
+                    isMulti
                     options={ESTADOS}
-                    onValueChange={setFiltroEstados}
-                    defaultValue={filtroEstados}
-                    placeholder="Selecione os estados"
-                    animation={1}
-                    maxCount={3}
+                    value={ESTADOS.filter((opt) =>
+                      filtroEstados.includes(opt.value)
+                    )}
+                    onChange={(selected) =>
+                      setFiltroEstados(
+                        selected ? selected.map((opt) => opt.value) : []
+                      )
+                    }
+                    placeholder={
+                      ESTADOS.length > 0
+                        ? "Selecione os estados"
+                        : "Nenhum estado disponível"
+                    }
+                    isClearable
+                    isSearchable
+                    closeMenuOnSelect={false}
+                    noOptionsMessage={() => "Nenhum estado encontrado"}
                   />
                 </div>
 
-                {/* Filtro por Cidade - só aparece se houver estado selecionado */}
+                {/* Filtro por Município - só aparece se houver estado selecionado */}
                 {filtroEstados.length > 0 && (
                   <div>
                     <label className="text-sm font-medium mb-3 block">
                       Município
                     </label>
-                    <MultiSelect
-                      options={municipiosDisponiveis}
-                      onValueChange={setFiltroMunicipios}
-                      defaultValue={filtroMunicipios}
-                      placeholder={
-                        municipiosDisponiveis.length > 0
-                          ? "Selecione os municípios"
-                          : "Nenhum município disponível"
-                      }
-                      animation={1}
-                      maxCount={5}
-                    />
+                    {loadingMunicipios ? (
+                      <div className="flex items-center gap-2 text-gray-500 text-sm py-2">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Carregando
+                        municípios...
+                      </div>
+                    ) : (
+                      <Select
+                        isMulti
+                        options={municipiosDisponiveis}
+                        value={municipiosDisponiveis.filter((opt) =>
+                          filtroMunicipios.includes(opt.value)
+                        )}
+                        onChange={(selected) =>
+                          setFiltroMunicipios(
+                            selected ? selected.map((opt) => opt.value) : []
+                          )
+                        }
+                        placeholder={
+                          municipiosDisponiveis.length > 0
+                            ? "Selecione os municípios"
+                            : "Nenhum município disponível"
+                        }
+                        isClearable
+                        isSearchable
+                        styles={{
+                          menu: (base) => ({ ...base, maxHeight: 300 }),
+                        }}
+                        closeMenuOnSelect={false}
+                        noOptionsMessage={() => "Nenhum município encontrado"}
+                      />
+                    )}
                   </div>
                 )}
 
