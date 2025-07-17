@@ -85,6 +85,10 @@ function App() {
     const saved = localStorage.getItem("filtroEstados");
     return saved ? JSON.parse(saved) : [];
   });
+  const [filtroMunicipios, setFiltroMunicipios] = useState(() => {
+    const saved = localStorage.getItem("filtroMunicipios");
+    return saved ? JSON.parse(saved) : [];
+  });
   // Salvar filtros no localStorage sempre que mudarem
   useEffect(() => {
     localStorage.setItem("filtroMeses", JSON.stringify(filtroMeses));
@@ -97,9 +101,34 @@ function App() {
   useEffect(() => {
     localStorage.setItem("filtroEstados", JSON.stringify(filtroEstados));
   }, [filtroEstados]);
+
+  useEffect(() => {
+    localStorage.setItem("filtroMunicipios", JSON.stringify(filtroMunicipios));
+  }, [filtroMunicipios]);
+
   const [feriadosExibidos, setFeriadosExibidos] = useState([]);
   const [buscaRealizada, setBuscaRealizada] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Gerar lista de cidades de acordo com estados selecionados
+  const municipiosDisponiveis = useMemo(() => {
+    if (filtroEstados.length === 0) return [];
+    // Filtrar feriados municipais pelas UFs selecionadas
+    const municipiosMap = new Map();
+    municipalHolidays.forEach((feriado) => {
+      if (filtroEstados.includes(feriado.uf) && feriado.municipio) {
+        // Chave única: UF + município
+        municipiosMap.set(
+          `${feriado.uf} - ${feriado.municipio}`,
+          feriado.municipio
+        );
+      }
+    });
+    // Ordenar municípios por label
+    return Array.from(municipiosMap.keys())
+      .sort()
+      .map((label) => ({ value: municipiosMap.get(label), label }));
+  }, [filtroEstados]);
 
   // Combinar todos os feriados
   const todosOsFeriados = useMemo(() => {
@@ -138,6 +167,14 @@ function App() {
         });
       }
 
+      // Filtro por município
+      if (filtroMunicipios.length > 0) {
+        feriados = feriados.filter((feriado) => {
+          if (feriado.tipo !== "MUNICIPAL") return true;
+          return filtroMunicipios.includes(feriado.municipio);
+        });
+      }
+
       // Ordenar por data
       const feriadosOrdenados = feriados.sort((a, b) => {
         const [diaA, mesA] = a.data.split("/");
@@ -158,12 +195,14 @@ function App() {
     setFiltroMeses([]);
     setFiltroTipos([]);
     setFiltroEstados([]);
+    setFiltroMunicipios([]);
     setFeriadosExibidos([]);
     setBuscaRealizada(false);
     // Limpar localStorage dos filtros
     localStorage.removeItem("filtroMeses");
     localStorage.removeItem("filtroTipos");
     localStorage.removeItem("filtroEstados");
+    localStorage.removeItem("filtroMunicipios");
   };
 
   // Função para formatar data
@@ -303,6 +342,27 @@ function App() {
                     maxCount={3}
                   />
                 </div>
+
+                {/* Filtro por Cidade - só aparece se houver estado selecionado */}
+                {filtroEstados.length > 0 && (
+                  <div>
+                    <label className="text-sm font-medium mb-3 block">
+                      Município
+                    </label>
+                    <MultiSelect
+                      options={municipiosDisponiveis}
+                      onValueChange={setFiltroMunicipios}
+                      defaultValue={filtroMunicipios}
+                      placeholder={
+                        municipiosDisponiveis.length > 0
+                          ? "Selecione os municípios"
+                          : "Nenhum município disponível"
+                      }
+                      animation={1}
+                      maxCount={5}
+                    />
+                  </div>
+                )}
 
                 {/* Botões de Ação */}
                 <div className="flex gap-4 pt-4">
